@@ -3,6 +3,7 @@ package noseryoung.ch.vinyl_store.logic.Vinyl;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import noseryoung.ch.vinyl_store.Vinyl.VinylEntity;
@@ -21,55 +22,45 @@ public class VinylController {
     private VinylService service;
 
     @GetMapping
-    public ResponseEntity<List<VinylEntity>> getAllVinylsSortedByGenre(){
-        try {
-            return ResponseEntity.ok().body(service.getAllVinyls());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
+    public ResponseEntity<List<VinylEntity>> getAllVinyls() {
+        List<VinylEntity> vinyls = service.getAllVinyls();
+        return ResponseEntity.ok(vinyls);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<VinylEntity>> getVinylByID(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok().body(service.getVinylByID(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
+    public ResponseEntity<VinylEntity> getVinylByID(@PathVariable Long id) {
+        return service.getVinylByID(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
-
 
     @GetMapping("/status")
     public ResponseEntity<List<VinylEntity>> getAllVinylsSortedByStatus() {
-        try {
-            return ResponseEntity.ok().body(service.getAllVinylsSortedByStatus());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
+        List<VinylEntity> vinyls = service.getAllVinylsSortedByStatus();
+        return ResponseEntity.ok(vinyls);
     }
-
 
     @PostMapping
     public ResponseEntity<VinylEntity> createNewVinyl(@RequestBody VinylEntity vinyl) {
         try {
-            return ResponseEntity.ok().body(service.createNewVinyl(vinyl));
+            VinylEntity createdVinyl = service.createNewVinyl(vinyl);
+            return ResponseEntity.ok(createdVinyl);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<VinylEntity> updateExistingVinyl(@PathVariable Long id, @RequestBody VinylEntity vinyl) {
         try {
-            return ResponseEntity.ok().body(service.updateExistingVinyl(id, vinyl));
+            VinylEntity updatedVinyl = service.updateExistingVinyl(id, vinyl);
+            return ResponseEntity.ok(updatedVinyl);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().build();
         }
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVinyl(@PathVariable Long id) {
@@ -79,8 +70,7 @@ public class VinylController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return ResponseEntity.status(500).build(); // Or another status code you find appropriate
+            return ResponseEntity.status(500).build();
         }
     }
-
 }
