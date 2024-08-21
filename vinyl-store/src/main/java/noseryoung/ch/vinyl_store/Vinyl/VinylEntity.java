@@ -3,6 +3,8 @@ package noseryoung.ch.vinyl_store.Vinyl;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.nio.file.Paths;
 import java.util.Date;
 
 @Getter
@@ -104,9 +106,8 @@ public class VinylEntity {
 
 
     public String getImageFilePath() {
-        return imageFilePath;
+        return "/images/" + Paths.get(imageFilePath).getFileName().toString(); // Ensures the correct path is returned
     }
-
     public void setImageFilePath(String imageFilePath) {
         this.imageFilePath = imageFilePath;
     }
